@@ -8,6 +8,7 @@
  * Author URI: https://daan.dev
  * License: GPL2v2 or later
  * Text Domain: moneybird-mollie-glue
+ * GitHub Plugin URI: https://github.com/Dan0sz/moneybird-mollie-glue
  * @formatter:on
  */
 
