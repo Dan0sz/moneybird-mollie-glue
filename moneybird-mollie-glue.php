@@ -3,7 +3,7 @@
  * @formatter:off
  * Plugin Name: Easy Digital Downloads - Glue for Moneybird & Mollie
  * Description: Automatically mark invoices as paid, when a payment through Mollie is received.
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: Daan van den Bergh
  * Author URI: https://daan.dev
  * License: GPL2v2 or later
