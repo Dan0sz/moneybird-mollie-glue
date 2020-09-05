@@ -17,7 +17,7 @@ define('MONEYBIRD_MOLLIE_GLUE_PLUGIN_DIR', plugin_dir_path(__FILE__));
 
 class MoneybirdMollieGlue
 {
-    /** @var moneybirdAPI\MoneyBirdClient $client */
+    /** @var MoneybirdClient $client */
     private $client;
 
     /**
@@ -26,14 +26,18 @@ class MoneybirdMollieGlue
     public function __construct()
     {
         // @formatter:off
-        add_action('edd_complete_purchase', [$this, 'init'], 10000, 3);
+        // EDD Moneybird runs at priority 999, this needs to run after that.
+        add_action('edd_complete_purchase', [$this, 'init'], 1000, 2);
         // @formatter:on
     }
 
     /**
+     * @param $payment_id
+     * @param $payment
+     *
      * @throws Exception
      */
-    public function init($payment_id, $payment, $customer)
+    public function init($payment_id, $payment)
     {
         $client_data = [
             'client_id'          => edd_get_option('emb_mb_clientID'),
@@ -50,10 +54,14 @@ class MoneybirdMollieGlue
             require_once(MONEYBIRD_MOLLIE_GLUE_PLUGIN_DIR . 'includes/class-moneybird-client.php');
         }
 
-        $this->client        = new MoneybirdClient($client_data);
-        $sales_invoice_id    = get_post_meta($payment_id, "_emb_payment_synced", true);
+        $this->client     = new MoneybirdClient($client_data);
+        $sales_invoice_id = get_post_meta($payment_id, "_emb_payment_synced", true);
 
-        $this->client->create_payment(
+        if (!$sales_invoice_id) {
+            return false;
+        }
+
+        return $this->client->create_payment(
             $sales_invoice_id,
             $payment->transaction_id,
             $payment

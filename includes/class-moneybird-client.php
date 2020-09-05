@@ -360,7 +360,7 @@ class MoneybirdClient
 
             $params = array('JSON' => '{"payment":' . json_encode($payment) . '}');
 
-            $response = $this->send_request('POST', $this->apiUrl . $this->version . '/' . $this->clientData['admin_id'] . '/sales_invoices/' . $sales_invoice_id . '/payments.json', $params);
+            $this->send_request('POST', $this->apiUrl . $this->version . '/' . $this->clientData['admin_id'] . '/sales_invoices/' . $sales_invoice_id . '/payments.json', $params);
         } catch (Exception $e) {
             throw $e;
         }
