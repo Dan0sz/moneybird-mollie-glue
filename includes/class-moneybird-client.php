@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package
  * @author    Daan van den Bergh
@@ -64,7 +65,7 @@ class MoneybirdClient
         try {
             if (empty($this->clientData['authorization_code'])) {
                 error_log("authorization code empty, retrieve new");
-                if (IsSet($_GET['code'])) {
+                if (isset($_GET['code'])) {
                     $nonce = $_REQUEST['mb_oauth2'];
 
                     if (strpos($this->clientData['auth_url'], $nonce) === false) {
@@ -83,14 +84,15 @@ class MoneybirdClient
                     $url                          = $this->authUrl . '?client_id=' . $this->clientData['client_id'] . '&redirect_uri=' . $this->clientData['redirect_uri'] . '&response_type=code&scope=sales_invoices%20bank';
                     $this->clientData['auth_url'] = $url;
                     add_action(
-                        'admin_notices', array(
+                        'admin_notices',
+                        array(
                             $this,
                             'admin_notice_getAuthorizationCode'
                         )
                     );
                 }
             } else {
-                error_log("authorization code found");
+                // error_log("authorization code found");
                 try {
                     if (empty($this->clientData['access_token'])) {
                         $this->get_mb_access_token();
@@ -102,7 +104,6 @@ class MoneybirdClient
                     throw $e;
                 }
             }
-
         } catch (Exception $e) {
             _log($e);
             throw $e;
@@ -134,7 +135,6 @@ class MoneybirdClient
         } catch (Exception $e) {
             throw $e;
         }
-
     }
 
     /**
@@ -210,9 +210,7 @@ class MoneybirdClient
         } catch (Exception $e) {
             $error = json_decode($e);
             _log($error);
-
         }
-
     }
 
     /**
@@ -301,7 +299,6 @@ class MoneybirdClient
         } catch (Exception $e) {
             throw $e;
         }
-
     }
 
     /**
@@ -424,7 +421,6 @@ class MoneybirdClient
             } else {
                 return false;
             }
-
         } catch (Exception $e) {
             throw $e;
         }
@@ -470,14 +466,12 @@ class MoneybirdClient
 
                 $params            = array('JSON' => '{"sales_invoice_sending":' . json_encode($send_attributes) . '}');
                 $sendRequestResult = $this->send_request('PATCH', $this->apiUrl . $this->version . '/' . $this->clientData['admin_id'] . '/sales_invoices/' . $invoiceID . '/send_invoice.json', $params);
-
             }
             if (!isset($sendRequestResult["error"])) {
                 return $invoiceID;
             } else {
                 return false;
             }
-
         } catch (Exception $e) {
             throw $e;
         }
@@ -637,13 +631,11 @@ class MoneybirdClient
     {
         $curlOptions = [];
         switch ($method) {
-            case 'GET':
-                {
+            case 'GET': {
                     $curlOptions[CURLOPT_URL] = $this->composeUrl($url, $params);
                     break;
                 }
-            case 'POST':
-                {
+            case 'POST': {
                     $curlOptions[CURLOPT_POST] = true;
                     if (empty($params['JSON'])) {
                         $curlOptions[CURLOPT_HTTPHEADER] = ['Content-type: application/x-www-form-urlencoded'];
@@ -654,8 +646,7 @@ class MoneybirdClient
                     }
                     break;
                 }
-            case 'PATCH':
-                {
+            case 'PATCH': {
                     $curlOptions[CURLOPT_CUSTOMREQUEST] = $method;;
                     if (empty($params['JSON'])) {
                         $curlOptions[CURLOPT_HTTPHEADER] = ['Content-type: application/x-www-form-urlencoded'];
@@ -666,16 +657,14 @@ class MoneybirdClient
                     }
                     break;
                 }
-            case 'HEAD':
-                {
+            case 'HEAD': {
                     $curlOptions[CURLOPT_CUSTOMREQUEST] = $method;
                     if (!empty($params)) {
                         $curlOptions[CURLOPT_URL] = $this->composeUrl($url, $params);
                     }
                     break;
                 }
-            default:
-                {
+            default: {
                     $curlOptions[CURLOPT_CUSTOMREQUEST] = $method;
                     if (!empty($params)) {
                         $curlOptions[CURLOPT_POSTFIELDS] = $params;
@@ -848,8 +837,7 @@ class MoneybirdClient
             return [];
         }
         switch ($contentType) {
-            case self::CONTENT_TYPE_AUTO:
-                {
+            case self::CONTENT_TYPE_AUTO: {
                     $contentType = $this->determineContentTypeByRaw($rawResponse);
                     if ($contentType == self::CONTENT_TYPE_AUTO) {
                         throw new Exception('Unable to determine response content type automatically.');
@@ -857,24 +845,20 @@ class MoneybirdClient
                     $response = $this->process_response($rawResponse, $contentType);
                     break;
                 }
-            case self::CONTENT_TYPE_JSON:
-                {
+            case self::CONTENT_TYPE_JSON: {
                     $response = json_decode((string) $rawResponse, true);
                     break;
                 }
-            case self::CONTENT_TYPE_URLENCODED:
-                {
+            case self::CONTENT_TYPE_URLENCODED: {
                     $response = [];
                     parse_str($rawResponse, $response);
                     break;
                 }
-            case self::CONTENT_TYPE_XML:
-                {
+            case self::CONTENT_TYPE_XML: {
                     $response = $this->convertXmlToArray($rawResponse);
                     break;
                 }
-            default:
-                {
+            default: {
                     throw new Exception('Unknown response type "' . $contentType . '".');
                 }
         }
