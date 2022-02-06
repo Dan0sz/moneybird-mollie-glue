@@ -92,7 +92,9 @@ class MoneybirdClient
                     );
                 }
             } else {
-                // error_log("authorization code found");
+                /**
+                 * Authorization code found.
+                 */
                 try {
                     if (empty($this->clientData['access_token'])) {
                         $this->get_mb_access_token();
